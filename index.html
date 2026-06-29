@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BoostForge — Trustworthy Windows gaming optimizer</title>
+    <meta
+      name="description"
+      content="BoostForge optimizes Windows for gaming using only measurable, reversible and safe changes. No fake benchmarks, no placebo boosts."
+    />
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0b0f;
+        --surface: #121419;
+        --elevated: #181b22;
+        --border: #242833;
+        --accent: #5b8cff;
+        --accent-hover: #6f9bff;
+        --good: #3ddc84;
+        --warn: #f5b14c;
+        --text: #eef1f7;
+        --text-2: #9aa3b2;
+        --text-3: #5f6776;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+      #bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+      /* Moving background — slow-drifting blurred color blobs */
+      .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(90px);
+        pointer-events: none;
+        z-index: 0;
+        will-change: transform;
+      }
+      .bg-blob.one {
+        width: 560px; height: 560px; top: -220px; left: -140px;
+        background: rgba(91, 140, 255, 0.32);
+        animation: driftA 22s ease-in-out infinite;
+      }
+      .bg-blob.two {
+        width: 480px; height: 480px; top: 160px; right: -180px;
+        background: rgba(167, 139, 250, 0.26);
+        animation: driftB 26s ease-in-out infinite;
+      }
+      .bg-blob.three {
+        width: 420px; height: 420px; bottom: -200px; left: 30%;
+        background: rgba(61, 220, 132, 0.16);
+        animation: driftC 30s ease-in-out infinite;
+      }
+      @keyframes driftA { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(70px, 90px); } }
+      @keyframes driftB { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-80px, -60px); } }
+      @keyframes driftC { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(50px, -70px); } }
+      @media (prefers-reduced-motion: reduce) {
+        .bg-blob { animation: none !important; }
+      }
+
+      /* Nav */
+      nav {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background: rgba(10, 11, 15, 0.72);
+        border-bottom: 1px solid var(--border);
+      }
+      nav .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+      }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+      .logo .mark {
+        width: 30px; height: 30px; border-radius: 9px;
+        background: rgba(91, 140, 255, 0.18);
+        display: grid; place-items: center;
+      }
+      .nav-right { display: flex; align-items: center; gap: 18px; }
+      .nav-links { display: flex; gap: 22px; font-size: 14px; color: var(--text-2); }
+      .nav-links a:hover { color: var(--text); }
+      .langs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+      .langs button {
+        background: none; border: none; color: var(--text-2); cursor: pointer;
+        font-size: 13px; padding: 4px 9px; border-radius: 7px; font-family: inherit;
+      }
+      .langs button.active { background: var(--elevated); color: var(--text); }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        border-radius: 11px; padding: 11px 18px; font-weight: 600; font-size: 14px;
+        cursor: pointer; border: none; font-family: inherit; transition: all 0.15s;
+      }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+      .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--surface); }
+
+      /* Hero */
+      header { position: relative; z-index: 1; text-align: center; padding: 110px 0 80px; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 999px; padding: 6px 14px; font-size: 13px; color: var(--text-2);
+        margin-bottom: 28px;
+      }
+      .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+      h1 { font-size: clamp(36px, 6vw, 64px); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+      h1 .grad {
+        background: linear-gradient(120deg, var(--accent), #a78bfa);
+        -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      }
+      .sub { font-size: clamp(16px, 2.4vw, 20px); color: var(--text-2); max-width: 640px; margin: 24px auto 36px; }
+      .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+      .hint { margin-top: 18px; font-size: 13px; color: var(--text-3); }
+
+      /* Sections */
+      section { position: relative; z-index: 1; padding: 70px 0; }
+      .eyebrow { color: var(--accent); font-weight: 600; font-size: 14px; text-align: center; }
+      h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; text-align: center; margin: 10px 0 14px; letter-spacing: -0.01em; }
+      .section-sub { text-align: center; color: var(--text-2); max-width: 600px; margin: 0 auto 48px; }
+
+      .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+      @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } .nav-links { display: none; } }
+      .card {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 16px; padding: 26px;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      }
+      .card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(91, 140, 255, 0.4);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      }
+      .card .ico { font-size: 26px; margin-bottom: 14px; }
+      .card h3 { font-size: 17px; margin-bottom: 8px; }
+      .card p { font-size: 14px; color: var(--text-2); }
+
+      /* Scroll-reveal */
+      .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease, transform 0.6s ease; }
+      .reveal.in-view { opacity: 1; transform: translateY(0); }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal { opacity: 1; transform: none; transition: none; }
+      }
+
+      /* Hero product mockup */
+      .hero-mockup { position: relative; max-width: 660px; margin: 56px auto 0; }
+      .mockup-glow {
+        position: absolute; inset: -50px; z-index: -1;
+        background: radial-gradient(circle, rgba(91, 140, 255, 0.28), transparent 70%);
+        filter: blur(10px);
+      }
+      .mockup-frame {
+        background: var(--elevated); border: 1px solid var(--border); border-radius: 16px;
+        overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+        animation: floatFrame 6s ease-in-out infinite;
+        text-align: left;
+      }
+      @keyframes floatFrame { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      @media (prefers-reduced-motion: reduce) {
+        .mockup-frame { animation: none; }
+      }
+      .mockup-bar {
+        display: flex; align-items: center; gap: 7px; padding: 10px 14px;
+        background: var(--surface); border-bottom: 1px solid var(--border);
+      }
+      .mockup-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
+      .mockup-bar .dot.r { background: #ff5f57; }
+      .mockup-bar .dot.y { background: #febc2e; }
+      .mockup-bar .dot.g { background: #28c840; }
+      .mockup-title { margin-left: 8px; font-size: 12px; color: var(--text-2); font-weight: 600; }
+      .mockup-demo-badge {
+        margin-left: auto; font-size: 10px; color: var(--text-3);
+        border: 1px solid var(--border); border-radius: 999px; padding: 2px 8px;
+      }
+      .mockup-body { padding: 26px; display: grid; gap: 20px; }
+      .mockup-gauges { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 16px; }
+      .mockup-gauge { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 92px; }
+      .mockup-gauge svg { width: 92px; height: 92px; transform: rotate(-90deg); }
+      .mockup-gauge circle { fill: none; stroke-width: 8; }
+      .mockup-gauge .track { stroke: var(--border); }
+      .mockup-gauge .fill { stroke-linecap: round; stroke-dasharray: 251; }
+      .mockup-gauge .fill.cpu { stroke: var(--accent); animation: pulseCpu 4s ease-in-out infinite; }
+      .mockup-gauge .fill.mem { stroke: var(--warn); animation: pulseMem 5s ease-in-out infinite; }
+      .mockup-gauge .fill.gpu { stroke: var(--good); animation: pulseGpu 4.6s ease-in-out infinite; }
+      @keyframes pulseCpu { 0%, 100% { stroke-dashoffset: 188; } 50% { stroke-dashoffset: 150; } }
+      @keyframes pulseMem { 0%, 100% { stroke-dashoffset: 130; } 50% { stroke-dashoffset: 95; } }
+      @keyframes pulseGpu { 0%, 100% { stroke-dashoffset: 205; } 50% { stroke-dashoffset: 165; } }
+      @media (prefers-reduced-motion: reduce) {
+        .mockup-gauge .fill { animation: none; stroke-dashoffset: 160; }
+      }
+      .mockup-gauge-value {
+        position: absolute; top: 34px; left: 0; right: 0; text-align: center;
+        font-weight: 700; font-size: 15px;
+      }
+      .mockup-gauge-label {
+        font-size: 10px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px;
+      }
+      .mockup-chart {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+      }
+      .mockup-chart .row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 11px; color: var(--text-2); }
+      .mockup-chart svg { width: 100%; height: 52px; display: block; }
+      .mockup-chart polyline { fill: none; stroke: var(--accent); stroke-width: 2; }
+      .mockup-chart polygon { fill: rgba(91, 140, 255, 0.16); stroke: none; }
+
+      /* Real screenshot gallery */
+      .shots { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+      .shot-card {
+        background: var(--elevated); border: 1px solid var(--border); border-radius: 14px;
+        overflow: hidden; transition: transform 0.25s ease, box-shadow 0.25s ease;
+      }
+      .shot-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4); }
+      .shot-card .mockup-bar { padding: 8px 12px; }
+      .shot-card img { width: 100%; display: block; cursor: zoom-in; }
+      .shot-card.is-missing { display: none; }
+
+      /* Lightbox for full-size screenshots */
+      .lightbox {
+        position: fixed; inset: 0; z-index: 100; display: none;
+        align-items: center; justify-content: center;
+        background: rgba(5, 6, 9, 0.88); padding: 40px; cursor: zoom-out;
+        backdrop-filter: blur(4px);
+      }
+      .lightbox.open { display: flex; }
+      .lightbox img {
+        max-width: 95vw; max-height: 90vh; border-radius: 12px;
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.6); border: 1px solid var(--border);
+      }
+      .lightbox-close {
+        position: absolute; top: 22px; right: 28px; color: var(--text-2);
+        font-size: 28px; line-height: 1; cursor: pointer; background: none; border: none;
+      }
+      .lightbox-close:hover { color: var(--text); }
+
+      /* Honesty band */
+      .band { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .band .list { max-width: 720px; margin: 0 auto; display: grid; gap: 14px; }
+      .band .row { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; }
+      .band .x { color: var(--warn); font-weight: 700; }
+
+      /* Pricing */
+      .prices { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; max-width: 760px; margin: 0 auto; }
+      @media (max-width: 720px) { .prices { grid-template-columns: 1fr; } }
+      .price {
+        background: var(--surface); border: 1px solid var(--border);
+        border-radius: 18px; padding: 30px;
+        transition: transform 0.25s ease;
+      }
+      .price:hover { transform: translateY(-4px); }
+      .price.pro { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(91,140,255,0.4), 0 20px 60px rgba(91,140,255,0.12); }
+      .price h3 { font-size: 18px; }
+      .price .amount { font-size: 40px; font-weight: 800; margin: 14px 0 4px; }
+      .price .amount span { font-size: 15px; color: var(--text-3); font-weight: 500; }
+      .price ul { list-style: none; margin: 22px 0; display: grid; gap: 11px; }
+      .price li { font-size: 14px; color: var(--text-2); display: flex; gap: 10px; }
+      .price li .c { color: var(--good); }
+      .price .btn { width: 100%; justify-content: center; }
+
+      /* Download */
+      .download { text-align: center; }
+      .download .box {
+        background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+        padding: 44px; max-width: 560px; margin: 0 auto;
+      }
+
+      footer { border-top: 1px solid var(--border); padding: 40px 0; color: var(--text-3); font-size: 13px; }
+      footer .wrap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    </style>
+  </head>
+  <body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+    <div class="bg-blob one"></div>
+    <div class="bg-blob two"></div>
+    <div class="bg-blob three"></div>
+
+    <nav>
+      <div class="wrap">
+        <a class="logo" href="#">
+          <span class="mark">⚡</span> BoostForge
+        </a>
+        <div class="nav-right">
+          <div class="nav-links">
+            <a href="#features" data-i18n="nav.features"></a>
+            <a href="#honesty" data-i18n="nav.honesty"></a>
+            <a href="#pricing" data-i18n="nav.pricing"></a>
+            <a href="#download" data-i18n="nav.download"></a>
+          </div>
+          <div class="langs" id="langs">
+            <button data-lang="en">EN</button>
+            <button data-lang="hu">HU</button>
+            <button data-lang="de">DE</button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <header>
+      <div class="wrap">
+        <div class="pill"><span class="dot"></span><span data-i18n="hero.pill"></span></div>
+        <h1><span data-i18n="hero.title1"></span> <span class="grad" data-i18n="hero.title2"></span></h1>
+        <p class="sub" data-i18n="hero.sub"></p>
+        <div class="cta">
+          <a class="btn btn-primary" href="#download"><span data-i18n="hero.ctaDownload"></span></a>
+          <a class="btn btn-outline" href="#pricing"><span data-i18n="hero.ctaPro"></span></a>
+        </div>
+        <p class="hint" data-i18n="hero.hint"></p>
+
+        <div class="hero-mockup" aria-hidden="true">
+          <div class="mockup-glow"></div>
+          <div class="mockup-frame">
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">BoostForge</span>
+              <span class="mockup-demo-badge" id="demo-ticker">Demo</span>
+            </div>
+            <div class="mockup-body">
+              <div class="mockup-gauges">
+                <div class="mockup-gauge">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="track" cx="50" cy="50" r="40" />
+                    <circle class="fill cpu" cx="50" cy="50" r="40" />
+                  </svg>
+                  <span class="mockup-gauge-value">32%</span>
+                  <span class="mockup-gauge-label">CPU</span>
+                </div>
+                <div class="mockup-gauge">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="track" cx="50" cy="50" r="40" />
+                    <circle class="fill mem" cx="50" cy="50" r="40" />
+                  </svg>
+                  <span class="mockup-gauge-value">54%</span>
+                  <span class="mockup-gauge-label">RAM</span>
+                </div>
+                <div class="mockup-gauge">
+                  <svg viewBox="0 0 100 100">
+                    <circle class="track" cx="50" cy="50" r="40" />
+                    <circle class="fill gpu" cx="50" cy="50" r="40" />
+                  </svg>
+                  <span class="mockup-gauge-value">18%</span>
+                  <span class="mockup-gauge-label">GPU</span>
+                </div>
+              </div>
+              <div class="mockup-chart">
+                <div class="row"><span>CPU history</span><span>last 60s</span></div>
+                <svg viewBox="0 0 240 56" preserveAspectRatio="none">
+                  <polygon points="0,56 0,40 20,34 40,38 60,24 80,30 100,18 120,26 140,16 160,22 180,12 200,20 220,14 240,18 240,56" />
+                  <polyline points="0,40 20,34 40,38 60,24 80,30 100,18 120,26 140,16 160,22 180,12 200,20 220,14 240,18" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <section id="features">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="features.eyebrow"></p>
+        <h2 data-i18n="features.title"></h2>
+        <p class="section-sub" data-i18n="features.sub"></p>
+        <div class="grid reveal" id="feature-grid"></div>
+      </div>
+    </section>
+
+    <section id="screenshots">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="shots.eyebrow"></p>
+        <h2 data-i18n="shots.title"></h2>
+        <p class="section-sub" data-i18n="shots.sub"></p>
+        <div class="shots reveal">
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Dashboard</span>
+            </div>
+            <img src="screenshots/dashboard.png" alt="BoostForge dashboard" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Cleaner</span>
+            </div>
+            <img src="screenshots/cleaner.png" alt="BoostForge cleaner" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Network</span>
+            </div>
+            <img src="screenshots/network.png" alt="BoostForge network latency" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Game Mode</span>
+            </div>
+            <img src="screenshots/gamemode.png" alt="BoostForge game mode" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Memory</span>
+            </div>
+            <img src="screenshots/memory.png" alt="BoostForge memory optimizer" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+          <div class="shot-card" data-shot>
+            <div class="mockup-bar">
+              <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+              <span class="mockup-title">Tools</span>
+            </div>
+            <img src="screenshots/tools.png" alt="BoostForge diagnostics tools" loading="lazy" onerror="this.closest('[data-shot]').classList.add('is-missing')" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="honesty" class="band">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="honesty.eyebrow"></p>
+        <h2 data-i18n="honesty.title"></h2>
+        <p class="section-sub" data-i18n="honesty.sub"></p>
+        <div class="list reveal" id="honesty-list"></div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="wrap">
+        <p class="eyebrow" data-i18n="pricing.eyebrow"></p>
+        <h2 data-i18n="pricing.title"></h2>
+        <p class="section-sub" data-i18n="pricing.sub"></p>
+        <div class="prices reveal">
+          <div class="price">
+            <h3 data-i18n="pricing.freeName"></h3>
+            <div class="amount">$0</div>
+            <ul id="free-list"></ul>
+            <a class="btn btn-outline" href="#download"><span data-i18n="pricing.freeCta"></span></a>
+          </div>
+          <div class="price pro">
+            <h3 data-i18n="pricing.proName"></h3>
+            <div class="amount">$5<span data-i18n="pricing.perMonth"></span></div>
+            <ul id="pro-list"></ul>
+            <a class="btn btn-primary" href="#" id="buy"><span data-i18n="pricing.proCta"></span></a>
+          </div>
+        </div>
+        <p class="hint" style="text-align:center" data-i18n="pricing.note"></p>
+      </div>
+    </section>
+
+    <section id="download" class="download">
+      <div class="wrap">
+        <div class="box reveal">
+          <p class="eyebrow" data-i18n="download.eyebrow"></p>
+          <h2 data-i18n="download.title"></h2>
+          <p class="section-sub" style="margin-bottom:28px" data-i18n="download.sub"></p>
+          <a class="btn btn-primary" id="download-link" href="#" download><span data-i18n="download.cta"></span></a>
+          <p class="hint" data-i18n="download.req"></p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="wrap">
+        <span>© 2026 BoostForge</span>
+        <span data-i18n="footer.tagline"></span>
+      </div>
+    </footer>
+
+    <div class="lightbox" id="lightbox">
+      <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+      <img id="lightbox-img" src="" alt="" />
+    </div>
+
+    <script src="i18n.js"></script>
+  </body>
+</html>
