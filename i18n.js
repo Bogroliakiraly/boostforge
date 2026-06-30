@@ -13,6 +13,7 @@ const I18N = {
     "nav.honesty": "Honesty",
     "nav.pricing": "Pricing",
     "nav.download": "Download",
+    "nav.account": "Account",
     "hero.pill": "No fake numbers. Ever.",
     "hero.title1": "Optimize Windows for gaming —",
     "hero.title2": "the honest way.",
@@ -76,6 +77,7 @@ const I18N = {
     "nav.honesty": "Őszinteség",
     "nav.pricing": "Árazás",
     "nav.download": "Letöltés",
+    "nav.account": "Fiók",
     "hero.pill": "Soha nincs hamis szám.",
     "hero.title1": "Optimalizáld a Windowst játékra —",
     "hero.title2": "őszintén.",
@@ -138,6 +140,7 @@ const I18N = {
     "nav.honesty": "Ehrlichkeit",
     "nav.pricing": "Preise",
     "nav.download": "Download",
+    "nav.account": "Konto",
     "hero.pill": "Niemals gefälschte Zahlen.",
     "hero.title1": "Windows fürs Gaming optimieren —",
     "hero.title2": "ehrlich.",
@@ -396,11 +399,22 @@ function setupLightbox() {
 function setupBuyButton() {
   const buy = document.getElementById("buy");
   if (!buy) return;
-  const isPlaceholder = BUY_URL.includes("your-payment-link");
-  if (!isPlaceholder) {
+
+  // 1) A real payment link takes priority once configured.
+  if (!BUY_URL.includes("your-payment-link")) {
     buy.href = BUY_URL;
     return;
   }
+
+  // 2) Otherwise, if online accounts are configured, "Get Pro" leads to the
+  //    account page where the visitor can register / sign in.
+  const cfg = window.BF_CONFIG || {};
+  if (cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY) {
+    buy.href = "account.html";
+    return;
+  }
+
+  // 3) Last resort (nothing configured yet): explain and point to download.
   buy.href = "#download";
   buy.addEventListener("click", (e) => {
     e.preventDefault();

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BoostForge — Account</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0b0f; --surface: #121419; --elevated: #181b22; --border: #242833;
+        --accent: #5b8cff; --accent-hover: #6f9bff; --good: #3ddc84; --warn: #f5b14c;
+        --text: #eef1f7; --text-2: #9aa3b2; --text-3: #5f6776;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "Inter", system-ui, sans-serif; background: var(--bg); color: var(--text);
+        line-height: 1.6; -webkit-font-smoothing: antialiased; min-height: 100vh;
+      }
+      a { color: inherit; text-decoration: none; }
+      .wrap { max-width: 520px; margin: 0 auto; padding: 0 24px; }
+      nav {
+        border-bottom: 1px solid var(--border); background: rgba(10,11,15,0.72); backdrop-filter: blur(12px);
+      }
+      nav .bar { max-width: 1120px; margin: 0 auto; padding: 0 24px; height: 64px;
+        display: flex; align-items: center; justify-content: space-between; }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; }
+      .logo .mark { width: 30px; height: 30px; border-radius: 9px; background: rgba(91,140,255,0.18); display: grid; place-items: center; }
+      .langs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+      .langs button { background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 13px; padding: 4px 9px; border-radius: 7px; font-family: inherit; }
+      .langs button.active { background: var(--elevated); color: var(--text); }
+
+      main { padding: 56px 0; }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 30px; }
+      h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
+      .muted { color: var(--text-2); font-size: 14px; }
+      .back { display: inline-block; margin-bottom: 18px; color: var(--text-2); font-size: 14px; }
+      .back:hover { color: var(--text); }
+
+      .tabs { display: flex; gap: 6px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 5px; margin: 20px 0 16px; }
+      .tabs button { flex: 1; background: none; border: none; color: var(--text-2); cursor: pointer; font-family: inherit; font-size: 14px; padding: 8px; border-radius: 8px; }
+      .tabs button.active { background: var(--elevated); color: var(--text); }
+
+      label { display: block; font-size: 13px; color: var(--text-2); margin: 12px 0 5px; }
+      input {
+        width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 11px;
+        padding: 11px 13px; color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+      }
+      input:focus { border-color: var(--accent); }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+        border-radius: 11px; padding: 12px 18px; font-weight: 600; font-size: 14px; cursor: pointer;
+        border: none; font-family: inherit; transition: all 0.15s; margin-top: 18px; }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-primary:hover { background: var(--accent-hover); }
+      .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+      .btn-outline:hover { background: var(--elevated); }
+      .btn[disabled] { opacity: 0.5; cursor: default; }
+
+      .msg { margin-top: 14px; font-size: 13px; padding: 10px 12px; border-radius: 10px; display: none; }
+      .msg.show { display: block; }
+      .msg.err { background: rgba(245,80,80,0.12); color: #ff9b9b; border: 1px solid rgba(245,80,80,0.3); }
+      .msg.ok { background: rgba(61,220,132,0.12); color: var(--good); border: 1px solid rgba(61,220,132,0.3); }
+
+      .badge { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 600;
+        border-radius: 999px; padding: 5px 12px; }
+      .badge.pro { background: rgba(61,220,132,0.14); color: var(--good); border: 1px solid rgba(61,220,132,0.35); }
+      .badge.none { background: var(--bg); color: var(--text-2); border: 1px solid var(--border); }
+      .keybox { margin-top: 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+      .keybox code { display: block; word-break: break-all; font-size: 12px; color: var(--text); margin-top: 8px; }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+      .link { color: var(--accent); cursor: pointer; font-size: 13px; background: none; border: none; font-family: inherit; }
+      .link:hover { text-decoration: underline; }
+      .hint { color: var(--text-3); font-size: 12px; margin-top: 8px; }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="bar">
+        <a class="logo" href="index.html"><span class="mark">⚡</span> BoostForge</a>
+        <div class="langs" id="langs">
+          <button data-lang="en">EN</button>
+          <button data-lang="hu">HU</button>
+          <button data-lang="de">DE</button>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <div class="wrap">
+        <a class="back" href="index.html" data-t="back"></a>
+        <div class="card">
+          <h1 data-t="title"></h1>
+
+          <!-- Not configured -->
+          <p id="notConfigured" class="muted hidden" data-t="notConfigured" style="margin-top:12px"></p>
+
+          <!-- Signed-out: auth form -->
+          <div id="authForm" class="hidden">
+            <p class="muted" data-t="subtitle" style="margin-top:8px"></p>
+            <div class="tabs">
+              <button id="tabSignIn" class="active" data-t="tabSignIn"></button>
+              <button id="tabSignUp" data-t="tabSignUp"></button>
+            </div>
+            <label data-t="email"></label>
+            <input id="email" type="email" autocomplete="email" />
+            <label data-t="password"></label>
+            <input id="password" type="password" autocomplete="current-password" />
+            <button id="submitBtn" class="btn btn-primary"></button>
+          </div>
+
+          <!-- Signed-in: account view -->
+          <div id="accountView" class="hidden">
+            <p class="muted" style="margin-top:8px">
+              <span data-t="loggedInAs"></span> <strong id="userEmail"></strong>
+            </p>
+            <div style="margin-top:16px">
+              <span id="subBadge" class="badge none"></span>
+            </div>
+            <p id="subNoneMsg" class="muted hidden" data-t="subNoneMsg" style="margin-top:12px"></p>
+            <div id="keyArea" class="keybox hidden">
+              <div class="row">
+                <span class="muted" data-t="keyLabel"></span>
+                <button id="copyBtn" class="link" data-t="copy"></button>
+              </div>
+              <code id="licenseKey"></code>
+              <p class="hint" data-t="keyHelp"></p>
+            </div>
+            <a class="btn btn-outline" id="downloadBtn" target="_blank" rel="noreferrer" data-t="download"></a>
+            <button id="signOutBtn" class="link" style="margin-top:16px; display:block" data-t="signOut"></button>
+          </div>
+
+          <div id="msg" class="msg"></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script>
+      const T = {
+        en: {
+          back: "← Back to site", title: "Your account",
+          subtitle: "Sign in or create an account to manage your BoostForge subscription.",
+          notConfigured: "Online accounts aren't enabled yet. You can still download the free app from the home page.",
+          tabSignIn: "Sign in", tabSignUp: "Register", email: "Email", password: "Password",
+          signIn: "Sign in", signUp: "Create account", signOut: "Sign out",
+          loggedInAs: "Signed in as",
+          subActive: "Active Pro subscription", subNone: "No active subscription",
+          subUntil: "Valid until {date}",
+          subNoneMsg: "Your account has no active Pro subscription yet. Once Pro is granted, your license key appears here automatically.",
+          keyLabel: "Your license key", copy: "Copy", copied: "Copied!",
+          keyHelp: "Paste this in BoostForge → Settings → Subscription, or sign in inside the app to sync it automatically.",
+          download: "Download BoostForge",
+          signedUp: "Account created — check your email to confirm, then sign in.",
+          fillBoth: "Enter your email and password.",
+        },
+        hu: {
+          back: "← Vissza a főoldalra", title: "A fiókod",
+          subtitle: "Jelentkezz be vagy hozz létre fiókot a BoostForge előfizetésed kezeléséhez.",
+          notConfigured: "Az online fiókok még nincsenek bekapcsolva. Az ingyenes appot a főoldalról letöltheted.",
+          tabSignIn: "Bejelentkezés", tabSignUp: "Regisztráció", email: "Email", password: "Jelszó",
+          signIn: "Bejelentkezés", signUp: "Fiók létrehozása", signOut: "Kijelentkezés",
+          loggedInAs: "Bejelentkezve mint",
+          subActive: "Aktív Pro előfizetés", subNone: "Nincs aktív előfizetés",
+          subUntil: "Érvényes eddig: {date}",
+          subNoneMsg: "Ehhez a fiókhoz még nincs aktív Pro előfizetés. Amint kapsz Pro-t, a licenckulcsod itt automatikusan megjelenik.",
+          keyLabel: "A licenckulcsod", copy: "Másolás", copied: "Másolva!",
+          keyHelp: "Illeszd be a BoostForge → Beállítások → Előfizetés mezőbe, vagy jelentkezz be az appban az automatikus szinkronhoz.",
+          download: "BoostForge letöltése",
+          signedUp: "Fiók létrehozva — erősítsd meg az emailben, majd jelentkezz be.",
+          fillBoth: "Add meg az emailt és a jelszót.",
+        },
+        de: {
+          back: "← Zurück zur Seite", title: "Dein Konto",
+          subtitle: "Melde dich an oder erstelle ein Konto, um dein BoostForge-Abo zu verwalten.",
+          notConfigured: "Online-Konten sind noch nicht aktiviert. Die kostenlose App kannst du auf der Startseite laden.",
+          tabSignIn: "Anmelden", tabSignUp: "Registrieren", email: "E-Mail", password: "Passwort",
+          signIn: "Anmelden", signUp: "Konto erstellen", signOut: "Abmelden",
+          loggedInAs: "Angemeldet als",
+          subActive: "Aktives Pro-Abo", subNone: "Kein aktives Abo",
+          subUntil: "Gültig bis {date}",
+          subNoneMsg: "Dieses Konto hat noch kein aktives Pro-Abo. Sobald Pro gewährt wird, erscheint dein Schlüssel hier automatisch.",
+          keyLabel: "Dein Lizenzschlüssel", copy: "Kopieren", copied: "Kopiert!",
+          keyHelp: "Füge ihn in BoostForge → Einstellungen → Abo ein, oder melde dich in der App an, um automatisch zu synchronisieren.",
+          download: "BoostForge herunterladen",
+          signedUp: "Konto erstellt — bestätige die E-Mail und melde dich dann an.",
+          fillBoth: "Gib E-Mail und Passwort ein.",
+        },
+      };
+
+      let lang = (function () {
+        try { return localStorage.getItem("bf.site.lang"); } catch (e) { return null; }
+      })() || (["hu", "de"].includes((navigator.language || "en").slice(0, 2)) ? (navigator.language || "en").slice(0, 2) : "en");
+      let mode = "signIn";
+
+      const $ = (id) => document.getElementById(id);
+      const dict = () => T[lang] || T.en;
+      function tr(key, vars) {
+        let s = (dict()[key] != null ? dict()[key] : (T.en[key] != null ? T.en[key] : key));
+        if (vars) for (const k in vars) s = s.replace("{" + k + "}", vars[k]);
+        return s;
+      }
+      function applyLang() {
+        document.documentElement.lang = lang;
+        document.querySelectorAll("[data-t]").forEach((el) => {
+          const k = el.getAttribute("data-t");
+          if (dict()[k] != null || T.en[k] != null) el.textContent = tr(k);
+        });
+        $("submitBtn").textContent = mode === "signUp" ? tr("signUp") : tr("signIn");
+        document.querySelectorAll("#langs button").forEach((b) =>
+          b.classList.toggle("active", b.dataset.lang === lang),
+        );
+        try { localStorage.setItem("bf.site.lang", lang); } catch (e) {}
+      }
+
+      function showMsg(text, kind) {
+        const m = $("msg");
+        m.textContent = text;
+        m.className = "msg show " + (kind || "ok");
+      }
+      function clearMsg() { $("msg").className = "msg"; }
+
+      function setMode(m) {
+        mode = m;
+        $("tabSignIn").classList.toggle("active", m === "signIn");
+        $("tabSignUp").classList.toggle("active", m === "signUp");
+        $("submitBtn").textContent = m === "signUp" ? tr("signUp") : tr("signIn");
+        clearMsg();
+      }
+
+      async function render() {
+        const dl = (window.BF_CONFIG && window.BF_CONFIG.DOWNLOAD_URL) || "index.html#download";
+        $("downloadBtn").href = dl;
+
+        if (!window.bfAuth || !window.bfAuth.configured) {
+          $("notConfigured").classList.remove("hidden");
+          $("authForm").classList.add("hidden");
+          $("accountView").classList.add("hidden");
+          return;
+        }
+
+        let user = null;
+        try { user = await window.bfAuth.user(); } catch (e) {}
+
+        if (!user) {
+          $("authForm").classList.remove("hidden");
+          $("accountView").classList.add("hidden");
+          $("notConfigured").classList.add("hidden");
+          return;
+        }
+
+        // Signed in
+        $("authForm").classList.add("hidden");
+        $("notConfigured").classList.add("hidden");
+        $("accountView").classList.remove("hidden");
+        $("userEmail").textContent = user.email || "";
+
+        let lic = null;
+        try { lic = await window.bfAuth.activeLicense(); } catch (e) {}
+        const badge = $("subBadge");
+        if (lic) {
+          badge.className = "badge pro";
+          badge.textContent = tr("subActive") + " · " + tr("subUntil", { date: lic.expires });
+          $("subNoneMsg").classList.add("hidden");
+          $("keyArea").classList.remove("hidden");
+          $("licenseKey").textContent = lic.license_key;
+        } else {
+          badge.className = "badge none";
+          badge.textContent = tr("subNone");
+          $("subNoneMsg").classList.remove("hidden");
+          $("keyArea").classList.add("hidden");
+        }
+      }
+
+      // Wire up
+      document.querySelectorAll("#langs button").forEach((b) =>
+        b.addEventListener("click", () => { lang = b.dataset.lang; applyLang(); render(); }),
+      );
+      $("tabSignIn").addEventListener("click", () => setMode("signIn"));
+      $("tabSignUp").addEventListener("click", () => setMode("signUp"));
+
+      $("submitBtn").addEventListener("click", async () => {
+        const email = $("email").value.trim();
+        const password = $("password").value;
+        if (!email || !password) { showMsg(tr("fillBoth"), "err"); return; }
+        $("submitBtn").disabled = true;
+        clearMsg();
+        try {
+          if (mode === "signUp") {
+            const { needsConfirmation } = await window.bfAuth.signUp(email, password);
+            if (needsConfirmation) { showMsg(tr("signedUp"), "ok"); setMode("signIn"); return; }
+          } else {
+            await window.bfAuth.signIn(email, password);
+          }
+          $("password").value = "";
+          await render();
+        } catch (e) {
+          showMsg((e && e.message) || String(e), "err");
+        } finally {
+          $("submitBtn").disabled = false;
+        }
+      });
+
+      $("signOutBtn").addEventListener("click", async () => {
+        await window.bfAuth.signOut();
+        await render();
+      });
+
+      $("copyBtn").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText($("licenseKey").textContent);
+          $("copyBtn").textContent = tr("copied");
+          setTimeout(() => ($("copyBtn").textContent = tr("copy")), 1500);
+        } catch (e) {}
+      });
+
+      applyLang();
+      render();
+    </script>
+  </body>
+</html>
