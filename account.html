@@ -131,6 +131,16 @@
               <p class="hint" data-t="keyHelp"></p>
             </div>
             <a class="btn btn-outline" id="downloadBtn" target="_blank" rel="noreferrer" data-t="download"></a>
+
+            <div style="margin-top:22px; border-top:1px solid var(--border); padding-top:18px">
+              <h3 style="font-size:15px" data-t="supportTitle"></h3>
+              <p class="muted" data-t="supportHelp" style="margin:4px 0 8px"></p>
+              <textarea id="supportMsg" rows="3" placeholder=""
+                style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:11px; padding:11px 13px; color:var(--text); font-family:inherit; font-size:14px; outline:none; resize:vertical"></textarea>
+              <button id="supportSend" class="btn btn-primary" style="margin-top:10px" data-t="supportSend"></button>
+            </div>
+
+            <a id="adminLink" href="support-admin.html" class="link hidden" style="margin-top:16px; display:block" data-t="adminInbox"></a>
             <button id="signOutBtn" class="link" style="margin-top:16px; display:block" data-t="signOut"></button>
           </div>
 
@@ -157,6 +167,12 @@
           keyLabel: "Your license key", copy: "Copy", copied: "Copied!",
           keyHelp: "Paste this in BoostForge → Settings → Subscription, or sign in inside the app to sync it automatically.",
           download: "Download BoostForge",
+          supportTitle: "Need help?",
+          supportHelp: "Send us a message — we'll reply by email.",
+          supportSend: "Send message",
+          supportSent: "Thanks! Your message was sent.",
+          supportEmpty: "Write a message first.",
+          adminInbox: "Admin: Support inbox →",
           signedUp: "Account created — check your email to confirm, then sign in.",
           fillBoth: "Enter your email and password.",
         },
@@ -173,6 +189,12 @@
           keyLabel: "A licenckulcsod", copy: "Másolás", copied: "Másolva!",
           keyHelp: "Illeszd be a BoostForge → Beállítások → Előfizetés mezőbe, vagy jelentkezz be az appban az automatikus szinkronhoz.",
           download: "BoostForge letöltése",
+          supportTitle: "Segítség kell?",
+          supportHelp: "Írj nekünk — emailben válaszolunk.",
+          supportSend: "Üzenet küldése",
+          supportSent: "Köszönjük! Az üzenetet elküldtük.",
+          supportEmpty: "Előbb írj egy üzenetet.",
+          adminInbox: "Admin: Support beérkezett →",
           signedUp: "Fiók létrehozva — erősítsd meg az emailben, majd jelentkezz be.",
           fillBoth: "Add meg az emailt és a jelszót.",
         },
@@ -189,6 +211,12 @@
           keyLabel: "Dein Lizenzschlüssel", copy: "Kopieren", copied: "Kopiert!",
           keyHelp: "Füge ihn in BoostForge → Einstellungen → Abo ein, oder melde dich in der App an, um automatisch zu synchronisieren.",
           download: "BoostForge herunterladen",
+          supportTitle: "Brauchst du Hilfe?",
+          supportHelp: "Schreib uns — wir antworten per E-Mail.",
+          supportSend: "Nachricht senden",
+          supportSent: "Danke! Deine Nachricht wurde gesendet.",
+          supportEmpty: "Schreibe zuerst eine Nachricht.",
+          adminInbox: "Admin: Support-Posteingang →",
           signedUp: "Konto erstellt — bestätige die E-Mail und melde dich dann an.",
           fillBoth: "Gib E-Mail und Passwort ein.",
         },
@@ -263,6 +291,14 @@
         $("accountView").classList.remove("hidden");
         $("userEmail").textContent = user.email || "";
 
+        // Show the admin inbox link only to the configured owner account.
+        try {
+          const admin = await window.bfAuth.isAdmin();
+          $("adminLink").classList.toggle("hidden", !admin);
+        } catch (e) {
+          $("adminLink").classList.add("hidden");
+        }
+
         let lic = null;
         try { lic = await window.bfAuth.activeLicense(); } catch (e) {}
         const badge = $("subBadge");
@@ -312,6 +348,21 @@
       $("signOutBtn").addEventListener("click", async () => {
         await window.bfAuth.signOut();
         await render();
+      });
+
+      $("supportSend").addEventListener("click", async () => {
+        const msg = $("supportMsg").value.trim();
+        if (!msg) { showMsg(tr("supportEmpty"), "err"); return; }
+        $("supportSend").disabled = true;
+        try {
+          await window.bfAuth.sendSupport(msg);
+          $("supportMsg").value = "";
+          showMsg(tr("supportSent"), "ok");
+        } catch (e) {
+          showMsg((e && e.message) || String(e), "err");
+        } finally {
+          $("supportSend").disabled = false;
+        }
       });
 
       $("copyBtn").addEventListener("click", async () => {

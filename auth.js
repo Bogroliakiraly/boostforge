@@ -44,6 +44,57 @@
       if (client) await client.auth.signOut();
     },
 
+    /** Starts the GitHub OAuth flow (used for the owner-only support admin). */
+    async signInWithGitHub(redirectTo) {
+      if (!client) throw new Error("Accounts are not available yet.");
+      const { error } = await client.auth.signInWithOAuth({
+        provider: "github",
+        options: { redirectTo: redirectTo || window.location.href },
+      });
+      if (error) throw error;
+    },
+
+    /** True if the signed-in user is the configured admin GitHub account. */
+    async isAdmin() {
+      const u = await this.user();
+      const login = u && u.user_metadata && (u.user_metadata.user_name || u.user_metadata.preferred_username);
+      return Boolean(login && login === (cfg.ADMIN_GITHUB_LOGIN || ""));
+    },
+
+    /** Submit a support message (any signed-in user). */
+    async sendSupport(message) {
+      if (!client) throw new Error("Accounts are not available yet.");
+      const u = await this.user();
+      if (!u) throw new Error("Please sign in first.");
+      const { error } = await client.from("support_messages").insert({
+        message: String(message),
+        email: u.email || null,
+        user_id: u.id,
+      });
+      if (error) throw error;
+    },
+
+    /** Admin-only: list all support messages (RLS returns rows only to admin). */
+    async listSupport() {
+      if (!client) return [];
+      const { data, error } = await client
+        .from("support_messages")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+
+    /** Admin-only: mark a message handled / unhandled. */
+    async setHandled(id, handled) {
+      if (!client) return;
+      const { error } = await client
+        .from("support_messages")
+        .update({ handled: Boolean(handled) })
+        .eq("id", id);
+      if (error) throw error;
+    },
+
     /** Newest active (non-revoked, unexpired) license for the signed-in user. */
     async activeLicense() {
       if (!client) return null;
