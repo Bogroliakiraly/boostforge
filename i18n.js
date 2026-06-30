@@ -425,7 +425,14 @@ function setupBuyButton() {
 }
 
 function init() {
-  document.getElementById("download-link").href = DOWNLOAD_URL;
+  // Prefer the site config's URL (a direct, self-hosted installer) so the
+  // download lands straight on the visitor's machine instead of routing them
+  // to a GitHub release page. The `download` attribute forces a save dialog.
+  const dl = (window.BF_CONFIG && window.BF_CONFIG.DOWNLOAD_URL) || DOWNLOAD_URL;
+  const dlEl = document.getElementById("download-link");
+  dlEl.href = dl;
+  dlEl.setAttribute("download", "");
+  dlEl.removeAttribute("target");
   setupBuyButton();
 
   document.querySelectorAll("#langs button").forEach((b) => {

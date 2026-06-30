@@ -8,5 +8,5 @@
 window.BF_CONFIG = {
   SUPABASE_URL: "https://unpaishxbfrtbkkxrcxq.supabase.co",
   SUPABASE_ANON_KEY: "sb_publishable_M2RB1FF5KwFP7DoKwgkCDA_RuXNDfEm", // publishable (public) key
-  DOWNLOAD_URL: "https://github.com/Bogroliakiraly/boostforge/releases/latest",
+  DOWNLOAD_URL: "download/BoostForge-Setup.exe", // direct download, hosted on the site
 };

@@ -237,6 +237,8 @@
       async function render() {
         const dl = (window.BF_CONFIG && window.BF_CONFIG.DOWNLOAD_URL) || "index.html#download";
         $("downloadBtn").href = dl;
+        $("downloadBtn").setAttribute("download", "");
+        $("downloadBtn").removeAttribute("target");
 
         if (!window.bfAuth || !window.bfAuth.configured) {
           $("notConfigured").classList.remove("hidden");
