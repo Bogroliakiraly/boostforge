@@ -1,12 +1,22 @@
 //! Power-plan control and Game Mode.
 //!
-//! Game Mode's only system change is switching to a High/Ultimate Performance
-//! power plan — a real, measurable change that prevents CPU core-parking and
-//! down-clocking. The previous plan is saved and restored exactly. Tyverix
-//! intentionally makes no unverifiable "FPS boost" claims.
+//! Every Game Mode change is a real, documented Windows mechanism — never a
+//! placebo tweak, and never sold with an invented FPS number:
+//!   1. Power plan → High/Ultimate Performance (prevents CPU core-parking and
+//!      down-clocking).
+//!   2. Xbox Game Bar / Game DVR's background capture is turned off (a known,
+//!      real source of CPU/GPU overhead in some games).
+//!   3. Detected game executables are set to "high performance" in Windows'
+//!      per-app GPU preference, and their process priority is raised one
+//!      notch (the same technique tools like Process Lasso use).
+//! Everything here is reversed exactly when Game Mode is turned off. Tyverix
+//! intentionally makes no unverifiable "FPS boost" claims — the real effect
+//! depends entirely on the game and the hardware.
 
 use serde::{Deserialize, Serialize};
 use tauri::State;
+use winreg::enums::*;
+use winreg::RegKey;
 
 use crate::error::{AppError, AppResult};
 use crate::state::AppState;
@@ -71,6 +81,20 @@ pub fn apply_game_mode(state: State<AppState>) -> AppResult<GameModeStatus> {
     let previous = active_plan_guid().ok();
     set_active(&target)?;
 
+    let game_dvr_previous = disable_game_dvr();
+
+    let detected = detect_game_processes(&state);
+    let mut gpu_pref_previous = Vec::new();
+    let mut boosted_pids = Vec::new();
+    for g in &detected {
+        if let Some(exe) = &g.exe_path {
+            gpu_pref_previous.push((exe.clone(), set_gpu_preference_for(exe)));
+        }
+        if boost_process_priority(g.pid) {
+            boosted_pids.push(g.pid);
+        }
+    }
+
     {
         let mut game = state
             .game
@@ -79,6 +103,9 @@ pub fn apply_game_mode(state: State<AppState>) -> AppResult<GameModeStatus> {
         game.active = true;
         game.previous_plan = previous.clone();
         game.applied_plan = Some(target.clone());
+        game.game_dvr_previous = game_dvr_previous;
+        game.gpu_pref_previous = gpu_pref_previous;
+        game.boosted_pids = boosted_pids;
     }
 
     if let Some(prev) = previous {
@@ -94,15 +121,27 @@ pub fn apply_game_mode(state: State<AppState>) -> AppResult<GameModeStatus> {
 
 #[tauri::command]
 pub fn restore_game_mode(state: State<AppState>) -> AppResult<GameModeStatus> {
-    let previous = {
+    let (previous, game_dvr_previous, gpu_pref_previous, boosted_pids) = {
         let game = state
             .game
             .lock()
             .map_err(|_| AppError::other("game state locked"))?;
-        game.previous_plan.clone()
+        (
+            game.previous_plan.clone(),
+            game.game_dvr_previous,
+            game.gpu_pref_previous.clone(),
+            game.boosted_pids.clone(),
+        )
     };
     if let Some(prev) = previous {
         set_active(&prev)?;
+    }
+    restore_game_dvr(game_dvr_previous);
+    for (exe, prev) in &gpu_pref_previous {
+        restore_gpu_preference_for(exe, prev.as_ref());
+    }
+    for pid in &boosted_pids {
+        restore_process_priority(*pid);
     }
     {
         let mut game = state
@@ -112,6 +151,9 @@ pub fn restore_game_mode(state: State<AppState>) -> AppResult<GameModeStatus> {
         game.active = false;
         game.applied_plan = None;
         game.previous_plan = None;
+        game.game_dvr_previous = None;
+        game.gpu_pref_previous = Vec::new();
+        game.boosted_pids = Vec::new();
     }
     get_game_mode_status(state)
 }
@@ -228,37 +270,157 @@ fn plan_name(guid: &str) -> String {
         .unwrap_or_else(|| guid.to_string())
 }
 
-/// Detects well-known game / launcher processes currently running. This is
-/// informational only — Game Mode never auto-engages without user consent.
-fn detect_games(state: &State<AppState>) -> Vec<String> {
-    const KNOWN: &[(&str, &str)] = &[
-        ("steam.exe", "Steam"),
-        ("EpicGamesLauncher.exe", "Epic Games"),
-        ("Battle.net.exe", "Battle.net"),
-        ("RiotClientServices.exe", "Riot Client"),
-        ("cs2.exe", "Counter-Strike 2"),
-        ("VALORANT-Win64-Shipping.exe", "VALORANT"),
-        ("FortniteClient-Win64-Shipping.exe", "Fortnite"),
-        ("javaw.exe", "Minecraft (Java)"),
-        ("LeagueofLegends.exe", "League of Legends"),
-        ("GTA5.exe", "Grand Theft Auto V"),
-        ("Cyberpunk2077.exe", "Cyberpunk 2077"),
-        ("eldenring.exe", "Elden Ring"),
-    ];
+const KNOWN_GAMES: &[(&str, &str)] = &[
+    ("steam.exe", "Steam"),
+    ("EpicGamesLauncher.exe", "Epic Games"),
+    ("Battle.net.exe", "Battle.net"),
+    ("RiotClientServices.exe", "Riot Client"),
+    ("cs2.exe", "Counter-Strike 2"),
+    ("VALORANT-Win64-Shipping.exe", "VALORANT"),
+    ("FortniteClient-Win64-Shipping.exe", "Fortnite"),
+    ("javaw.exe", "Minecraft (Java)"),
+    ("LeagueofLegends.exe", "League of Legends"),
+    ("GTA5.exe", "Grand Theft Auto V"),
+    ("Cyberpunk2077.exe", "Cyberpunk 2077"),
+    ("eldenring.exe", "Elden Ring"),
+];
+
+struct DetectedGame {
+    pid: u32,
+    exe_path: Option<String>,
+    label: String,
+}
+
+/// Detects well-known game / launcher processes currently running, with their
+/// PID and full path so Game Mode can target them (GPU preference, priority).
+fn detect_game_processes(state: &State<AppState>) -> Vec<DetectedGame> {
     let Ok(sys) = state.sys.lock() else {
         return Vec::new();
     };
+    sys.processes()
+        .iter()
+        .filter_map(|(pid, p)| {
+            let name = p.name();
+            KNOWN_GAMES
+                .iter()
+                .find(|(exe, _)| exe.eq_ignore_ascii_case(name))
+                .map(|(_, label)| DetectedGame {
+                    pid: pid.as_u32(),
+                    exe_path: p.exe().map(|e| e.to_string_lossy().to_string()),
+                    label: label.to_string(),
+                })
+        })
+        .collect()
+}
+
+/// Informational only — Game Mode never auto-engages without user consent.
+fn detect_games(state: &State<AppState>) -> Vec<String> {
     let mut found = Vec::new();
-    for p in sys.processes().values() {
-        let name = p.name();
-        if let Some((_, label)) = KNOWN
-            .iter()
-            .find(|(exe, _)| exe.eq_ignore_ascii_case(name))
-        {
-            if !found.contains(&label.to_string()) {
-                found.push(label.to_string());
-            }
+    for g in detect_game_processes(state) {
+        if !found.contains(&g.label) {
+            found.push(g.label);
         }
     }
     found
+}
+
+// --- Xbox Game Bar / Game DVR ------------------------------------------------
+/// Game DVR's background capture hooks are a documented, real source of
+/// CPU/GPU overhead in some games. Disabling it is a plain per-user registry
+/// value, no admin needed. Returns the previous value (`None` if it didn't
+/// exist) so it can be restored exactly.
+fn disable_game_dvr() -> Option<u32> {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let Ok((key, _)) = hkcu.create_subkey(r"System\GameConfigStore") else {
+        return None;
+    };
+    let previous: Option<u32> = key.get_value("GameDVR_Enabled").ok();
+    let _ = key.set_value("GameDVR_Enabled", &0u32);
+    previous
+}
+
+fn restore_game_dvr(previous: Option<u32>) {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let Ok(key) = hkcu.open_subkey_with_flags(r"System\GameConfigStore", KEY_SET_VALUE) else {
+        return;
+    };
+    match previous {
+        Some(v) => {
+            let _ = key.set_value("GameDVR_Enabled", &v);
+        }
+        None => {
+            let _ = key.delete_value("GameDVR_Enabled");
+        }
+    }
+}
+
+// --- Per-app GPU preference ---------------------------------------------------
+/// Sets a detected game's Windows GPU preference to "High performance"
+/// (`HKCU\...\DirectX\UserGpuPreferences`, keyed by full exe path) — the same
+/// setting Settings → Display → Graphics exposes per-app. Returns the
+/// previous value for that exe, if any, so it can be restored exactly.
+fn set_gpu_preference_for(exe_path: &str) -> Option<String> {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let Ok((key, _)) = hkcu.create_subkey(r"Software\Microsoft\DirectX\UserGpuPreferences") else {
+        return None;
+    };
+    let previous: Option<String> = key.get_value(exe_path).ok();
+    let _ = key.set_value(exe_path, &"GpuPreference=2;".to_string());
+    previous
+}
+
+fn restore_gpu_preference_for(exe_path: &str, previous: Option<&String>) {
+    let hkcu = RegKey::predef(HKEY_CURRENT_USER);
+    let Ok(key) = hkcu.open_subkey_with_flags(
+        r"Software\Microsoft\DirectX\UserGpuPreferences",
+        KEY_SET_VALUE,
+    ) else {
+        return;
+    };
+    match previous {
+        Some(v) => {
+            let _ = key.set_value(exe_path, v);
+        }
+        None => {
+            let _ = key.delete_value(exe_path);
+        }
+    }
+}
+
+// --- Process priority ---------------------------------------------------------
+/// Raises a detected game's scheduling priority one notch (Normal → Above
+/// Normal) — the same technique tools like Process Lasso use to give a game's
+/// threads a scheduling edge over background processes. Returns whether it
+/// actually took effect.
+fn boost_process_priority(pid: u32) -> bool {
+    use windows::Win32::Foundation::CloseHandle;
+    use windows::Win32::System::Threading::{
+        OpenProcess, SetPriorityClass, ABOVE_NORMAL_PRIORITY_CLASS, PROCESS_QUERY_INFORMATION,
+        PROCESS_SET_INFORMATION,
+    };
+    unsafe {
+        let Ok(handle) = OpenProcess(PROCESS_SET_INFORMATION | PROCESS_QUERY_INFORMATION, false, pid)
+        else {
+            return false;
+        };
+        let ok = SetPriorityClass(handle, ABOVE_NORMAL_PRIORITY_CLASS).is_ok();
+        let _ = CloseHandle(handle);
+        ok
+    }
+}
+
+fn restore_process_priority(pid: u32) {
+    use windows::Win32::Foundation::CloseHandle;
+    use windows::Win32::System::Threading::{
+        OpenProcess, SetPriorityClass, NORMAL_PRIORITY_CLASS, PROCESS_QUERY_INFORMATION,
+        PROCESS_SET_INFORMATION,
+    };
+    unsafe {
+        if let Ok(handle) =
+            OpenProcess(PROCESS_SET_INFORMATION | PROCESS_QUERY_INFORMATION, false, pid)
+        {
+            let _ = SetPriorityClass(handle, NORMAL_PRIORITY_CLASS);
+            let _ = CloseHandle(handle);
+        }
+    }
 }

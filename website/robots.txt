@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /support-admin.html
+
+Sitemap: https://tyverix.com/sitemap.xml

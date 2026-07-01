@@ -147,6 +147,24 @@ export function GameMode() {
             off="—"
             whenOffLabel={t("game.whenOff")}
           />
+          <Effect
+            title={t("game.effectDvr")}
+            on={t("game.effectDvrOn")}
+            off={t("game.effectDvrOff")}
+            whenOffLabel={t("game.whenOff")}
+          />
+          <Effect
+            title={t("game.effectGpu")}
+            on={t("game.effectGpuOn")}
+            off={t("game.effectGpuOff")}
+            whenOffLabel={t("game.whenOff")}
+          />
+          <Effect
+            title={t("game.effectPriority")}
+            on={t("game.effectPriorityOn")}
+            off={t("game.effectPriorityOff")}
+            whenOffLabel={t("game.whenOff")}
+          />
         </div>
         <p className="mt-4 text-xs text-text-muted">{t("game.note")}</p>
       </Card>

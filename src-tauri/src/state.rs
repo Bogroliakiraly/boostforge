@@ -31,6 +31,14 @@ pub struct GameModeState {
     pub active: bool,
     pub previous_plan: Option<String>,
     pub applied_plan: Option<String>,
+    /// Previous `GameDVR_Enabled` registry value (`None` = the value didn't
+    /// exist before, so restoring means deleting it rather than writing back).
+    pub game_dvr_previous: Option<u32>,
+    /// (exe path, previous `UserGpuPreferences` value) for each detected game
+    /// we set to "High performance", so it can be restored exactly.
+    pub gpu_pref_previous: Vec<(String, Option<String>)>,
+    /// PIDs whose priority class we raised, to reset back to Normal.
+    pub boosted_pids: Vec<u32>,
 }
 
 pub struct AppState {
