@@ -21,7 +21,7 @@ const I18N = {
       "BoostForge boosts real performance using only measurable, reversible and safe changes. No placebo tweaks, no fake FPS, no risky registry hacks.",
     "hero.ctaDownload": "Download free",
     "hero.ctaPro": "See Pro",
-    "hero.hint": "Windows 10 & 11 · Free 7-day Pro trial included",
+    "hero.hint": "Windows 10 & 11 · Free 1-day Pro trial included",
     "features.eyebrow": "Real features",
     "features.title": "Everything you need, nothing you don't",
     "features.sub":
@@ -29,7 +29,6 @@ const I18N = {
     "shots.eyebrow": "See it for yourself",
     "shots.title": "The actual app, not a mockup",
     "shots.sub": "Real screens from a running BoostForge install.",
-    "shots.demoPreview": "Demo · running {n}s — not a read of your PC",
     "pricing.comingSoon": "Online Pro purchases aren't open yet — download the free version below for now, and check back soon.",
     "honesty.eyebrow": "Honesty by design",
     "honesty.title": "What BoostForge will never do",
@@ -44,7 +43,7 @@ const I18N = {
     "pricing.freeCta": "Download",
     "pricing.proCta": "Get Pro",
     "pricing.note":
-      "Pro unlocks Game Mode, the memory optimizer and automation. A 7-day trial is included — no card required.",
+      "Pro unlocks Game Mode, the memory optimizer and automation. A 1-day trial is included — no card required.",
     "download.eyebrow": "Get started",
     "download.title": "Download BoostForge",
     "download.sub": "A 1–4 MB installer. Updates arrive automatically inside the app.",
@@ -85,7 +84,7 @@ const I18N = {
       "A BoostForge valódi teljesítményt nyújt, kizárólag mérhető, visszafordítható és biztonságos változtatásokkal. Nincs placebo, nincs hamis FPS, nincs kockázatos registry-trükk.",
     "hero.ctaDownload": "Ingyenes letöltés",
     "hero.ctaPro": "Pro megtekintése",
-    "hero.hint": "Windows 10 és 11 · 7 napos ingyenes Pro próbával",
+    "hero.hint": "Windows 10 és 11 · 1 napos ingyenes Pro próbával",
     "features.eyebrow": "Valódi funkciók",
     "features.title": "Minden, amire szükség van — semmi felesleges",
     "features.sub":
@@ -93,7 +92,6 @@ const I18N = {
     "shots.eyebrow": "Nézd meg magad",
     "shots.title": "A valódi app, nem makett",
     "shots.sub": "Valódi képernyők egy futó BoostForge telepítésről.",
-    "shots.demoPreview": "Demó · {n}s óta fut — nem a te géped adata",
     "pricing.comingSoon": "Az online Pro-vásárlás még nem elérhető — addig töltsd le az ingyenes verziót lent, és nézz vissza hamarosan.",
     "honesty.eyebrow": "Tervezetten őszinte",
     "honesty.title": "Amit a BoostForge soha nem tesz",
@@ -107,7 +105,7 @@ const I18N = {
     "pricing.freeCta": "Letöltés",
     "pricing.proCta": "Pro beszerzése",
     "pricing.note":
-      "A Pro feloldja a Játék módot, a memória-optimalizálót és az automatizálást. 7 napos próba jár hozzá — kártya nélkül.",
+      "A Pro feloldja a Játék módot, a memória-optimalizálót és az automatizálást. 1 napos próba jár hozzá — kártya nélkül.",
     "download.eyebrow": "Első lépések",
     "download.title": "Töltsd le a BoostForge-ot",
     "download.sub": "1–4 MB-os telepítő. A frissítések automatikusan érkeznek az appban.",
@@ -148,7 +146,7 @@ const I18N = {
       "BoostForge steigert echte Leistung ausschließlich mit messbaren, umkehrbaren und sicheren Änderungen. Keine Placebos, keine gefälschten FPS, keine riskanten Registry-Hacks.",
     "hero.ctaDownload": "Kostenlos laden",
     "hero.ctaPro": "Pro ansehen",
-    "hero.hint": "Windows 10 & 11 · 7 Tage Pro-Test inklusive",
+    "hero.hint": "Windows 10 & 11 · 1 Tag Pro-Test inklusive",
     "features.eyebrow": "Echte Funktionen",
     "features.title": "Alles, was du brauchst — nichts, was du nicht brauchst",
     "features.sub":
@@ -156,7 +154,6 @@ const I18N = {
     "shots.eyebrow": "Sieh es selbst",
     "shots.title": "Die echte App, kein Mockup",
     "shots.sub": "Echte Bildschirme aus einer laufenden BoostForge-Installation.",
-    "shots.demoPreview": "Demo · läuft seit {n}s — keine Daten von deinem PC",
     "pricing.comingSoon": "Online-Pro-Käufe sind noch nicht möglich — lade vorerst unten die kostenlose Version herunter und schau bald wieder vorbei.",
     "honesty.eyebrow": "Ehrlich konzipiert",
     "honesty.title": "Was BoostForge niemals tut",
@@ -170,7 +167,7 @@ const I18N = {
     "pricing.freeCta": "Download",
     "pricing.proCta": "Pro holen",
     "pricing.note":
-      "Pro schaltet Spielmodus, Speicher-Optimierer und Automatisierung frei. 7-Tage-Test inklusive — ohne Karte.",
+      "Pro schaltet Spielmodus, Speicher-Optimierer und Automatisierung frei. 1-Tag-Test inklusive — ohne Karte.",
     "download.eyebrow": "Loslegen",
     "download.title": "BoostForge herunterladen",
     "download.sub": "Ein 1–4 MB Installer. Updates kommen automatisch in der App an.",
@@ -346,21 +343,8 @@ function setupLiveGauges() {
   }, 1800);
 }
 
-// A genuinely real elapsed-time counter (not invented data) labeling the
-// hero mockup as a demo, so the "live" feel never implies it's reading the
-// visitor's actual PC.
-function setupDemoTicker() {
-  const el = document.getElementById("demo-ticker");
-  if (!el) return;
-  const start = Date.now();
-  function tick() {
-    const secs = Math.floor((Date.now() - start) / 1000);
-    const dict = I18N[CURRENT_LANG] || I18N.en;
-    el.textContent = (dict["shots.demoPreview"] || "Demo · {n}s").replace("{n}", secs);
-  }
-  tick();
-  setInterval(tick, 1000);
-}
+// The hero mockup's badge just reads "Demo" (set in index.html) so it never
+// implies it's reading the visitor's actual PC — no ticking counter text.
 
 // Click any screenshot to view it full-size; click the backdrop, the close
 // button, or press Escape to dismiss.
@@ -450,7 +434,6 @@ function init() {
 
   setupParticles();
   setupLiveGauges();
-  setupDemoTicker();
   setupLightbox();
 }
 
