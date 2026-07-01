@@ -138,6 +138,33 @@ can list the messages even with the public key.
 3. Open **`support-admin.html`** on the site and sign in with that email +
    password. Any other account is denied and signed out immediately.
 
+## Anti-abuse: one trial per device, a device cap per account
+
+Run [`anti_abuse.sql`](anti_abuse.sql) once in the SQL editor (same as
+`schema.sql`/`support.sql`). It adds two tables the client checks on every
+sign-in:
+
+- `trial_devices` — the first account to use the free trial on a given
+  Windows installation "claims" it; a new email registered later on the same
+  PC does not get a fresh trial.
+- `account_devices` — caps one account at 3 distinct devices (see
+  `MAX_DEVICES_PER_ACCOUNT` in `src/lib/deviceGuard.ts`). A device beyond the
+  cap is shown Free regardless of the account's actual subscription — this is
+  what "accounts can't be shared" means in practice.
+
+Both are best-effort and fail open on a network error (an honest user is never
+locked out because of a hiccup), and both only apply to accounts signed in
+through the app/website — a raw license key pasted directly still validates
+fully offline as before, by design.
+
+## Registration is required
+
+As of the app version that ships with this backend, `AuthGate` blocks the app
+entirely until the visitor signs in or registers — there is no "use it without
+an account" path anymore. Sessions persist through the Tauri Store plugin
+(see `src/lib/supabase.ts`), so this only appears once per install unless the
+user explicitly signs out.
+
 ## Free trial
 
 The free trial is now **1 day, counted from the account's registration date**

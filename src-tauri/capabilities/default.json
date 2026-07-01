@@ -16,6 +16,7 @@
     "process:default",
     "process:allow-restart",
     "opener:default",
+    "store:default",
     {
       "identifier": "http:default",
       "allow": [{ "url": "https://*.supabase.co/*" }]

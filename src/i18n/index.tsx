@@ -125,7 +125,7 @@ const en: Dict = {
   "plans.pro.5": "Scheduled automatic cleanup",
 
   "auth.title": "Online account",
-  "auth.subtitle": "Sign in to use your subscription on this PC.",
+  "auth.subtitle": "Create a free account or sign in to use BoostForge.",
   "auth.tabSignIn": "Sign in",
   "auth.tabSignUp": "Register",
   "auth.email": "Email",
@@ -139,7 +139,6 @@ const en: Dict = {
   "auth.signedUpMsg": "Check your email to confirm, then sign in.",
   "auth.noSubTitle": "No active subscription",
   "auth.noSubMsg": "This account has no active Pro subscription yet.",
-  "auth.skip": "Continue without an account",
 
   "admin.title": "Admin · Issue license keys",
   "admin.subtitle": "Vendor only. Generate signed Pro keys.",
@@ -173,7 +172,7 @@ const en: Dict = {
   "settings.permissions": "Permissions",
   "settings.account": "Subscription",
   "settings.willNot": "What BoostForge deliberately will NOT do",
-  "settings.version": "Version 0.1.5 · Windows 10 & 11",
+  "settings.version": "Version 0.1.6 · Windows 10 & 11",
   "settings.willNot.1": "Disable Windows services for marginal, unmeasurable gains.",
   "settings.willNot.2": "Delete the Prefetch folder (it speeds up app launches).",
   "settings.willNot.3": "Claim fixed FPS gains it cannot verify.",
@@ -578,7 +577,7 @@ const hu: Dict = {
   "plans.pro.5": "Ütemezett automatikus tisztítás",
 
   "auth.title": "Online fiók",
-  "auth.subtitle": "Jelentkezz be, hogy az előfizetésedet ezen a gépen használd.",
+  "auth.subtitle": "Hozz létre egy ingyenes fiókot vagy jelentkezz be a BoostForge használatához.",
   "auth.tabSignIn": "Bejelentkezés",
   "auth.tabSignUp": "Regisztráció",
   "auth.email": "Email",
@@ -592,7 +591,6 @@ const hu: Dict = {
   "auth.signedUpMsg": "Erősítsd meg az emailben, majd jelentkezz be.",
   "auth.noSubTitle": "Nincs aktív előfizetés",
   "auth.noSubMsg": "Ehhez a fiókhoz még nincs aktív Pro előfizetés.",
-  "auth.skip": "Folytatás fiók nélkül",
 
   "admin.title": "Admin · Licenckulcsok kiadása",
   "admin.subtitle": "Csak a szolgáltatónak. Aláírt Pro kulcsok generálása.",
@@ -626,7 +624,7 @@ const hu: Dict = {
   "settings.permissions": "Jogosultságok",
   "settings.account": "Előfizetés",
   "settings.willNot": "Amit a BoostForge szándékosan NEM tesz",
-  "settings.version": "0.1.5 verzió · Windows 10 és 11",
+  "settings.version": "0.1.6 verzió · Windows 10 és 11",
   "settings.willNot.1": "Windows-szolgáltatásokat letiltani jelentéktelen, nem mérhető nyereségért.",
   "settings.willNot.2": "Törölni a Prefetch mappát (az gyorsítja az appindítást).",
   "settings.willNot.3": "Fix FPS-nyereséget ígérni, amit nem tud igazolni.",
@@ -1031,7 +1029,7 @@ const de: Dict = {
   "plans.pro.5": "Geplante automatische Bereinigung",
 
   "auth.title": "Online-Konto",
-  "auth.subtitle": "Melde dich an, um dein Abo auf diesem PC zu nutzen.",
+  "auth.subtitle": "Erstelle ein kostenloses Konto oder melde dich an, um BoostForge zu nutzen.",
   "auth.tabSignIn": "Anmelden",
   "auth.tabSignUp": "Registrieren",
   "auth.email": "E-Mail",
@@ -1045,7 +1043,6 @@ const de: Dict = {
   "auth.signedUpMsg": "Bestätige die E-Mail und melde dich dann an.",
   "auth.noSubTitle": "Kein aktives Abo",
   "auth.noSubMsg": "Dieses Konto hat noch kein aktives Pro-Abo.",
-  "auth.skip": "Ohne Konto fortfahren",
 
   "admin.title": "Admin · Lizenzschlüssel ausstellen",
   "admin.subtitle": "Nur für Anbieter. Signierte Pro-Schlüssel erzeugen.",
@@ -1079,7 +1076,7 @@ const de: Dict = {
   "settings.permissions": "Berechtigungen",
   "settings.account": "Abonnement",
   "settings.willNot": "Was BoostForge bewusst NICHT tut",
-  "settings.version": "Version 0.1.5 · Windows 10 & 11",
+  "settings.version": "Version 0.1.6 · Windows 10 & 11",
   "settings.willNot.1": "Windows-Dienste für geringe, nicht messbare Vorteile deaktivieren.",
   "settings.willNot.2": "Den Prefetch-Ordner löschen (er beschleunigt den App-Start).",
   "settings.willNot.3": "Feste FPS-Gewinne behaupten, die es nicht belegen kann.",

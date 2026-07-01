@@ -24,7 +24,9 @@
       .langs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
       .langs button { background: none; border: none; color: var(--text-2); cursor: pointer; font-size: 13px; padding: 4px 9px; border-radius: 7px; font-family: inherit; }
       .langs button.active { background: var(--elevated); color: var(--text); }
-      main { padding: 56px 0 80px; }
+      .back { display: inline-block; margin-top: 28px; color: var(--text-2); font-size: 14px; }
+      .back:hover { color: var(--text); }
+      main { padding: 0 0 80px; }
       h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.01em; }
       .sub { color: var(--text-2); margin-top: 8px; font-size: 15px; }
       .entry { position: relative; padding: 28px 0 28px 26px; border-left: 2px solid var(--border); }
@@ -61,7 +63,8 @@
 
     <main>
       <div class="wrap">
-        <h1 id="pageTitle"></h1>
+        <a class="back" href="index.html" id="backLink"></a>
+        <h1 id="pageTitle" style="margin-top:10px"></h1>
         <p class="sub" id="pageSub"></p>
         <div id="list"></div>
       </div>
@@ -73,35 +76,39 @@
           title: "Changelog",
           sub: "What's new in BoostForge, release by release.",
           latest: "Latest",
+          back: "← Back to site",
           entries: [
+            { v: "0.1.6", date: "2026-07-02", items: [
+              "Signing in is now remembered reliably — you won't be asked again after restarting the app",
+              "One free trial per device, so the trial stays fair for everyone",
+              "An account is now required to use BoostForge",
+            ]},
             { v: "0.1.5", date: "2026-07-01", items: [
-              "Sign-in prompt right at launch (remembered — you won't be asked twice)",
+              "Sign-in prompt right at launch, instead of only in Settings",
               "A real progress bar while cleaning, instead of a single spinner",
-              "Diagnostics pages (Drivers, Services, Windows Update) now time out instead of hanging when Windows is slow to respond",
-              "This changelog page",
+              "Diagnostics pages (Drivers, Services, Windows Update) no longer hang if Windows is slow to respond",
+              "Added this changelog page",
             ]},
             { v: "0.1.4", date: "2026-07-01", items: [
-              "Support inbox with its own admin login",
+              "Added a way to contact support from your account page",
               "Free vs Pro comparison shown right in the app",
               "Startup animation",
-              "“Select all” in the disk cleaner",
-              "Generating a license key for yourself now offers one-click activation on this device",
+              "Select all in the disk cleaner",
             ]},
             { v: "0.1.3", date: "2026-06-30", items: [
               "Free trial is now 1 day, counted from your account's registration",
               "Confirmation before closing the app, so it can't be shut mid-task by accident",
               "Runs elevated (as administrator) automatically",
               "Driver update links: official download page + release notes per device",
-              "Support inbox groundwork",
             ]},
             { v: "0.1.2", date: "2026-06-30", items: [
               "Online accounts: register and sign in from the website or the app",
-              "Admin panel to issue Pro license keys for any number of days",
-              "Free vs Pro gating enforced (Game Mode, Memory, Network, Scheduled cleanup are Pro)",
+              "Pro subscriptions are now available",
+              "Game Mode, Memory optimizer, Network latency check and Scheduled cleanup are now Pro features",
               "The installer now downloads directly from the site",
             ]},
             { v: "0.1.1", date: "2026-06-29", items: [
-              "Automatic updates verified end-to-end",
+              "Improved the automatic update process",
             ]},
             { v: "0.1.0", date: "2026-06-29", items: [
               "Initial release: live system monitor, safe disk cleaner, Game Mode, memory optimizer, network latency check, scheduled cleanup, startup manager, safety net (restore points & undo)",
@@ -113,35 +120,39 @@
           title: "Újdonságok",
           sub: "Mi változott a BoostForge-ban, kiadásról kiadásra.",
           latest: "Legfrissebb",
+          back: "← Vissza a főoldalra",
           entries: [
+            { v: "0.1.6", date: "2026.07.02", items: [
+              "A bejelentkezés mostantól megbízhatóan megjegyzésre kerül — újraindítás után nem kérdezi újra",
+              "Egy ingyenes próba gépenként, hogy a próba mindenkinek igazságos maradjon",
+              "A BoostForge használatához mostantól fiók szükséges",
+            ]},
             { v: "0.1.5", date: "2026.07.01", items: [
-              "Bejelentkezési képernyő közvetlenül induláskor (megjegyzi — nem kérdezi kétszer)",
+              "Bejelentkezési képernyő közvetlenül induláskor, nem csak a Beállításokban",
               "Valódi folyamatjelző csík tisztításkor egyetlen pörgő ikon helyett",
-              "A diagnosztikai oldalak (Illesztőprogramok, Szolgáltatások, Windows Update) most időtúllépéssel térnek vissza ahelyett, hogy örökre lefagynának, ha a Windows lassan válaszol",
-              "Ez az újdonságok oldal",
+              "A diagnosztikai oldalak (Illesztőprogramok, Szolgáltatások, Windows Update) többé nem fagynak le, ha a Windows lassan válaszol",
+              "Elkészült ez az újdonságok oldal",
             ]},
             { v: "0.1.4", date: "2026.07.01", items: [
-              "Support beérkezett üzenetek, saját admin bejelentkezéssel",
+              "Új lehetőség a support csapat elérésére a fiók oldaladról",
               "Ingyenes vs Pro összehasonlítás közvetlenül az appban",
               "Indítási animáció",
               "„Összes kijelölése” a lemeztisztítóban",
-              "Ha magadnak generálsz licenckulcsot, egy kattintással aktiválható ezen a gépen",
             ]},
             { v: "0.1.3", date: "2026.06.30", items: [
               "Az ingyenes próba mostantól 1 nap, a fiók regisztrációjától számítva",
               "Megerősítés bezáráskor, hogy véletlenül ne záródjon be művelet közben",
               "Automatikusan rendszergazdaként indul",
               "Illesztőprogram-frissítési linkek: hivatalos letöltőoldal és changelog eszközönként",
-              "Support beérkezett üzenetek alapjai",
             ]},
             { v: "0.1.2", date: "2026.06.30", items: [
               "Online fiókok: regisztráció és bejelentkezés a weboldalon vagy az appban",
-              "Admin felület Pro licenckulcsok kiadásához, tetszőleges napra",
-              "Ingyenes vs Pro zárolás bevezetve (Játék mód, Memória, Hálózat, Ütemezett tisztítás Pro)",
+              "Elérhetővé vált a Pro előfizetés",
+              "A Játék mód, a Memória-optimalizáló, a Hálózati késleltetés-mérő és az Ütemezett tisztítás mostantól Pro funkció",
               "A telepítő mostantól közvetlenül a weboldalról töltődik le",
             ]},
             { v: "0.1.1", date: "2026.06.29", items: [
-              "Az automatikus frissítés végpontig ellenőrizve",
+              "Megbízhatóbb automatikus frissítés",
             ]},
             { v: "0.1.0", date: "2026.06.29", items: [
               "Első kiadás: élő rendszerfigyelő, biztonságos lemeztisztító, Játék mód, memória-optimalizáló, hálózati késleltetés-mérő, ütemezett tisztítás, indítópult-kezelő, biztonsági háló (visszaállítási pontok és visszavonás)",
@@ -153,35 +164,39 @@
           title: "Änderungsprotokoll",
           sub: "Was in BoostForge neu ist, Release für Release.",
           latest: "Neueste",
+          back: "← Zurück zur Seite",
           entries: [
+            { v: "0.1.6", date: "02.07.2026", items: [
+              "Die Anmeldung wird jetzt zuverlässig gemerkt — nach einem Neustart wirst du nicht erneut gefragt",
+              "Ein kostenloser Test pro Gerät, damit der Test für alle fair bleibt",
+              "Für BoostForge ist jetzt ein Konto erforderlich",
+            ]},
             { v: "0.1.5", date: "01.07.2026", items: [
-              "Anmeldeaufforderung direkt beim Start (gemerkt — du wirst nicht zweimal gefragt)",
+              "Anmeldeaufforderung direkt beim Start, nicht nur in den Einstellungen",
               "Ein echter Fortschrittsbalken beim Bereinigen statt eines einzelnen Spinners",
-              "Diagnose-Seiten (Treiber, Dienste, Windows Update) brechen jetzt mit Zeitüberschreitung ab, statt sich aufzuhängen, wenn Windows langsam reagiert",
-              "Diese Änderungsprotokoll-Seite",
+              "Diagnose-Seiten (Treiber, Dienste, Windows Update) hängen sich nicht mehr auf, wenn Windows langsam reagiert",
+              "Diese Änderungsprotokoll-Seite wurde hinzugefügt",
             ]},
             { v: "0.1.4", date: "01.07.2026", items: [
-              "Support-Posteingang mit eigenem Admin-Login",
+              "Neue Möglichkeit, den Support über deine Kontoseite zu erreichen",
               "Gratis-vs-Pro-Vergleich direkt in der App",
               "Start-Animation",
               "„Alle auswählen“ im Datenträger-Bereiniger",
-              "Einen für dich selbst erzeugten Lizenzschlüssel kannst du jetzt mit einem Klick auf diesem Gerät aktivieren",
             ]},
             { v: "0.1.3", date: "30.06.2026", items: [
               "Der kostenlose Test ist jetzt 1 Tag, gezählt ab der Kontoregistrierung",
               "Bestätigung vor dem Schließen der App, damit sie nicht versehentlich mitten in einer Aufgabe beendet wird",
               "Startet automatisch erhöht (als Administrator)",
               "Treiber-Update-Links: offizielle Download-Seite + Release Notes je Gerät",
-              "Grundlage für den Support-Posteingang",
             ]},
             { v: "0.1.2", date: "30.06.2026", items: [
               "Online-Konten: Registrierung und Anmeldung über die Website oder die App",
-              "Admin-Panel zum Ausstellen von Pro-Lizenzschlüsseln für beliebig viele Tage",
-              "Gratis-vs-Pro-Sperre eingeführt (Spielmodus, Speicher, Netzwerk, geplante Bereinigung sind Pro)",
+              "Pro-Abos sind jetzt verfügbar",
+              "Spielmodus, Speicher-Optimierer, Netzwerklatenz-Prüfung und geplante Bereinigung sind jetzt Pro-Funktionen",
               "Der Installer wird jetzt direkt von der Website heruntergeladen",
             ]},
             { v: "0.1.1", date: "29.06.2026", items: [
-              "Automatische Updates Ende-zu-Ende verifiziert",
+              "Zuverlässigere automatische Updates",
             ]},
             { v: "0.1.0", date: "29.06.2026", items: [
               "Erste Veröffentlichung: Live-Systemmonitor, sicherer Datenträger-Bereiniger, Spielmodus, Speicher-Optimierer, Netzwerklatenz-Prüfung, geplante Bereinigung, Autostart-Manager, Sicherheitsnetz (Wiederherstellungspunkte & Rückgängig)",
@@ -196,6 +211,7 @@
         document.documentElement.lang = lang;
         document.getElementById("pageTitle").textContent = d.title;
         document.getElementById("pageSub").textContent = d.sub;
+        document.getElementById("backLink").textContent = d.back;
         document.getElementById("list").innerHTML = d.entries
           .map(
             (e, i) => `

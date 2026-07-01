@@ -1,15 +1,30 @@
 import { create } from "zustand";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase, isSupabaseConfigured, type LicenseRow } from "../lib/supabase";
+import { checkDeviceGuard } from "../lib/deviceGuard";
 import { useLicense } from "./useLicense";
 
 /** Free trial = 1 day counted from the account's registration date. */
 const TRIAL_MS = 24 * 60 * 60 * 1000;
 
-function applyAccountTrial(user: User | null) {
-  const createdAt = user?.created_at;
-  const until = createdAt ? new Date(new Date(createdAt).getTime() + TRIAL_MS).toISOString() : null;
-  useLicense.getState().setTrialUntil(until);
+/** Recomputes the trial window and device-sharing flag for the signed-in
+ *  account (or clears both when signed out). Runs the device-guard checks
+ *  (one trial per device, a device cap per account) before deciding. */
+async function applyAccountState(user: User | null) {
+  const license = useLicense.getState();
+  if (!user?.email) {
+    license.setTrialUntil(null);
+    license.setDeviceBlocked(false);
+    return;
+  }
+  const guard = await checkDeviceGuard(user.email);
+  license.setDeviceBlocked(guard.deviceBlocked);
+  const createdAt = user.created_at;
+  const until =
+    guard.trialEligible && createdAt
+      ? new Date(new Date(createdAt).getTime() + TRIAL_MS).toISOString()
+      : null;
+  license.setTrialUntil(until);
 }
 
 interface AuthState {
@@ -38,11 +53,11 @@ export const useAuth = create<AuthState>((set, get) => ({
     }
     supabase.auth.getSession().then(({ data }) => {
       set({ session: data.session, user: data.session?.user ?? null, ready: true });
-      applyAccountTrial(data.session?.user ?? null);
+      applyAccountState(data.session?.user ?? null);
     });
     supabase.auth.onAuthStateChange((_event, session) => {
       set({ session, user: session?.user ?? null });
-      applyAccountTrial(session?.user ?? null);
+      applyAccountState(session?.user ?? null);
     });
   },
 

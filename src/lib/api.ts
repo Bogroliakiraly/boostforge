@@ -83,6 +83,7 @@ export const listInstalledSoftware = () =>
 export const listServices = () => invoke<ServiceInfo[]>("list_services");
 
 export const isElevated = () => invoke<boolean>("is_elevated");
+export const getDeviceId = () => invoke<string>("get_device_id");
 
 // --- Memory ----------------------------------------------------------------
 export const freeMemory = (purgeStandby: boolean) =>

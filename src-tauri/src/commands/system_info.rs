@@ -340,6 +340,24 @@ Get-Service | Sort-Object DisplayName | Select-Object Name, DisplayName,
         .collect())
 }
 
+// --- Device identity ---------------------------------------------------------
+/// A stable per-Windows-installation identifier (the OS's own `MachineGuid`,
+/// generated once by Windows setup). Used only to keep the free trial and
+/// account-sharing checks honest — e.g. so the same PC can't mint a fresh
+/// 1-day trial by registering a new email each time. It never leaves the
+/// device except as this opaque GUID sent to the vendor's own backend.
+#[tauri::command]
+pub fn get_device_id() -> AppResult<String> {
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let key = hklm
+        .open_subkey(r"SOFTWARE\Microsoft\Cryptography")
+        .map_err(|e| crate::error::AppError::Registry(e.to_string()))?;
+    let guid: String = key
+        .get_value("MachineGuid")
+        .map_err(|e| crate::error::AppError::Registry(e.to_string()))?;
+    Ok(guid)
+}
+
 // --- Elevation -------------------------------------------------------------
 #[tauri::command]
 pub fn is_elevated() -> AppResult<bool> {

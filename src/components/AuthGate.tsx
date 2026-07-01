@@ -5,31 +5,23 @@ import { isSupabaseConfigured } from "../lib/supabase";
 import { toast } from "../store/useToast";
 import { useT } from "../i18n";
 
-const SKIP_KEY = "bf.auth.skipped";
-
 /**
- * Full-screen sign-in prompt shown right at startup instead of only being
- * reachable from Settings. Supabase already persists the session across
- * launches (persistSession: true), so once signed in this never reappears —
- * and choosing "Continue without an account" is remembered the same way, so
- * nobody is asked twice. Renders nothing when Supabase isn't configured.
+ * Full-screen sign-in prompt shown right at startup — registering or signing
+ * in is required to use BoostForge. Supabase persists the session through
+ * Tauri's own Store plugin (see lib/supabase.ts), so once signed in this
+ * never reappears on later launches. Renders nothing when Supabase isn't
+ * configured (should not happen in production, but keeps local dev usable).
  */
 export function AuthGate() {
   const { t } = useT();
   const auth = useAuth();
-  const [skipped, setSkipped] = useState(() => localStorage.getItem(SKIP_KEY) === "1");
   const [mode, setMode] = useState<"signIn" | "signUp">("signIn");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const visible = isSupabaseConfigured && auth.ready && !auth.user && !skipped;
+  const visible = isSupabaseConfigured && auth.ready && !auth.user;
   if (!visible) return null;
-
-  function skip() {
-    localStorage.setItem(SKIP_KEY, "1");
-    setSkipped(true);
-  }
 
   async function submit() {
     if (!email.trim() || !password) return;
@@ -114,13 +106,6 @@ export function AuthGate() {
             )}
           </button>
         </div>
-
-        <button
-          onClick={skip}
-          className="mt-4 w-full text-center text-xs text-text-muted hover:text-text-secondary hover:underline"
-        >
-          {t("auth.skip")}
-        </button>
       </div>
     </div>
   );

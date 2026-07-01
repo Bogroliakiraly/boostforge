@@ -88,6 +88,7 @@ pub fn run() {
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
         .manage(AppState::new())
         .invoke_handler(tauri::generate_handler![
             // Live monitoring
@@ -135,6 +136,7 @@ pub fn run() {
             commands::system_info::list_installed_software,
             commands::system_info::list_services,
             commands::system_info::is_elevated,
+            commands::system_info::get_device_id,
         ])
         .run(tauri::generate_context!())
         .expect("error while running BoostForge");
