@@ -8,6 +8,7 @@ import type {
   CleanResult,
   CleanTarget,
   CleanupScheduleStatus,
+  DailyStat,
   DiskInfo,
   DriverInfo,
   FileEntry,
@@ -84,6 +85,9 @@ export const listServices = () => invoke<ServiceInfo[]>("list_services");
 
 export const isElevated = () => invoke<boolean>("is_elevated");
 export const getDeviceId = () => invoke<string>("get_device_id");
+
+// --- Daily reclaimed-space stats --------------------------------------------
+export const getDailyStats = () => invoke<DailyStat[]>("get_daily_stats");
 
 // --- Memory ----------------------------------------------------------------
 export const freeMemory = (purgeStandby: boolean) =>

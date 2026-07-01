@@ -137,6 +137,7 @@ pub fn run() {
             commands::system_info::list_services,
             commands::system_info::is_elevated,
             commands::system_info::get_device_id,
+            commands::stats::get_daily_stats,
         ])
         .run(tauri::generate_context!())
         .expect("error while running BoostForge");

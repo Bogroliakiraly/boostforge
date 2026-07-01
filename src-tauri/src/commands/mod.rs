@@ -11,4 +11,5 @@ pub mod power;
 pub mod safety;
 pub mod schedule;
 pub mod startup;
+pub mod stats;
 pub mod system_info;

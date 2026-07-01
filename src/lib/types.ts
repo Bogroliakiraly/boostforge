@@ -233,6 +233,12 @@ export interface CleanupScheduleStatus {
   last_removed_files: number | null;
 }
 
+export interface DailyStat {
+  date: string; // "YYYY-MM-DD"
+  disk_freed_bytes: number;
+  memory_freed_bytes: number;
+}
+
 export type Tier = "free" | "trial" | "pro";
 
 export interface LicenseStatus {

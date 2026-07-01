@@ -334,6 +334,7 @@ pub(crate) fn clean_targets_impl(
     }
 
     errors.truncate(20);
+    crate::commands::stats::record_disk_freed(freed);
     Ok(CleanResult {
         freed_bytes: freed,
         removed_files: removed,

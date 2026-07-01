@@ -67,9 +67,11 @@ pub fn free_memory(purge_standby: bool) -> AppResult<MemoryFreeResult> {
     std::thread::sleep(std::time::Duration::from_millis(350));
     sys.refresh_memory();
     let after = sys.available_memory();
+    let freed_bytes = after as i64 - before as i64;
+    crate::commands::stats::record_memory_freed(freed_bytes);
 
     Ok(MemoryFreeResult {
-        freed_bytes: after as i64 - before as i64,
+        freed_bytes,
         available_before: before,
         available_after: after,
         total,
