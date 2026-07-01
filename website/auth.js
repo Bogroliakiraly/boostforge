@@ -44,21 +44,12 @@
       if (client) await client.auth.signOut();
     },
 
-    /** Starts the GitHub OAuth flow (used for the owner-only support admin). */
-    async signInWithGitHub(redirectTo) {
-      if (!client) throw new Error("Accounts are not available yet.");
-      const { error } = await client.auth.signInWithOAuth({
-        provider: "github",
-        options: { redirectTo: redirectTo || window.location.href },
-      });
-      if (error) throw error;
-    },
-
-    /** True if the signed-in user is the configured admin GitHub account. */
+    /** True if the signed-in user is the configured admin account (by email). */
     async isAdmin() {
       const u = await this.user();
-      const login = u && u.user_metadata && (u.user_metadata.user_name || u.user_metadata.preferred_username);
-      return Boolean(login && login === (cfg.ADMIN_GITHUB_LOGIN || ""));
+      const email = u && u.email && u.email.toLowerCase();
+      const adminEmail = (cfg.ADMIN_EMAIL || "").toLowerCase();
+      return Boolean(email && adminEmail && email === adminEmail);
     },
 
     /** Submit a support message (any signed-in user). */

@@ -69,6 +69,13 @@ export function Cleaner() {
     });
   }
 
+  const selectableIds = targets.filter((t) => t.size_bytes > 0).map((t) => t.id);
+  const allSelected = selectableIds.length > 0 && selectableIds.every((id) => selected.has(id));
+
+  function toggleAll() {
+    setSelected(allSelected ? new Set() : new Set(selectableIds));
+  }
+
   async function runClean() {
     const ids = [...selected];
     if (ids.length === 0) return;
@@ -123,10 +130,17 @@ export function Cleaner() {
           title={t("clean.title")}
           subtitle={t("clean.subtitle")}
           action={
-            <button className="btn-ghost" onClick={scan} disabled={scanning}>
-              <RefreshCw className={`h-4 w-4 ${scanning ? "animate-spin" : ""}`} />
-              {t("common.rescan")}
-            </button>
+            <div className="flex items-center gap-2">
+              {!scanning && selectableIds.length > 0 && (
+                <button className="btn-outline" onClick={toggleAll}>
+                  {allSelected ? t("clean.deselectAll") : t("clean.selectAll")}
+                </button>
+              )}
+              <button className="btn-ghost" onClick={scan} disabled={scanning}>
+                <RefreshCw className={`h-4 w-4 ${scanning ? "animate-spin" : ""}`} />
+                {t("common.rescan")}
+              </button>
+            </div>
           }
         />
 

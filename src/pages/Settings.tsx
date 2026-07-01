@@ -8,6 +8,8 @@ import {
   KeyRound,
   CalendarClock,
   PlayCircle,
+  Check,
+  Lock,
 } from "lucide-react";
 import { Badge, Card, SectionTitle, Spinner } from "../components/ui";
 import { AccountCard } from "../components/AccountCard";
@@ -182,6 +184,8 @@ export function Settings({ elevated }: { elevated: boolean | null }) {
         </div>
       </Card>
 
+      <PlansCard />
+
       <ProGate>
         <AutoCleanupCard />
       </ProGate>
@@ -229,6 +233,47 @@ export function Settings({ elevated }: { elevated: boolean | null }) {
         </ul>
       </Card>
     </div>
+  );
+}
+
+function PlansCard() {
+  const { t } = useT();
+  const freeItems = [1, 2, 3, 4].map((i) => t(`plans.free.${i}`));
+  const proItems = [1, 2, 3, 4, 5].map((i) => t(`plans.pro.${i}`));
+  return (
+    <Card>
+      <SectionTitle title={t("plans.title")} subtitle={t("plans.subtitle")} />
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="rounded-xl border border-border-subtle p-4">
+          <p className="mb-3 text-sm font-semibold text-text-secondary">{t("plans.freeTitle")}</p>
+          <ul className="space-y-2 text-sm">
+            {freeItems.map((item) => (
+              <li key={item} className="flex items-start gap-2">
+                <Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="rounded-xl border border-accent/40 bg-accent/5 p-4">
+          <p className="mb-3 flex items-center gap-1.5 text-sm font-semibold text-accent">
+            <Crown className="h-4 w-4" /> {t("plans.proTitle")}
+          </p>
+          <ul className="space-y-2 text-sm">
+            {proItems.map((item, i) => (
+              <li key={item} className="flex items-start gap-2">
+                {i === 0 ? (
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />
+                ) : (
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
+                )}
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </Card>
   );
 }
 

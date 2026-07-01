@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ShieldHalf, KeyRound, Copy, Check, ChevronDown } from "lucide-react";
+import { ShieldHalf, KeyRound, Copy, Check, ChevronDown, Sparkles } from "lucide-react";
 import { Card, Spinner } from "./ui";
 import { isSupabaseConfigured, issueLicense, type IssuedLicense } from "../lib/supabase";
+import { activateLicense } from "../lib/api";
+import { useLicense } from "../store/useLicense";
 import { toast } from "../store/useToast";
 import { useT } from "../i18n";
 
@@ -22,8 +24,24 @@ export function AdminPanel() {
   const [busy, setBusy] = useState(false);
   const [issued, setIssued] = useState<IssuedLicense | null>(null);
   const [copied, setCopied] = useState(false);
+  const [activating, setActivating] = useState(false);
+  const license = useLicense();
 
   if (!isSupabaseConfigured) return null;
+
+  async function activateHere() {
+    if (!issued) return;
+    setActivating(true);
+    try {
+      const status = await activateLicense(issued.key);
+      license.set(status);
+      toast.success(t("license.activated"));
+    } catch (e) {
+      toast.error(t("common.error"), String(e instanceof Error ? e.message : e));
+    } finally {
+      setActivating(false);
+    }
+  }
 
   async function generate() {
     if (!token.trim() || !email.trim() || days < 1) return;
@@ -145,6 +163,10 @@ export function AdminPanel() {
               <code className="selectable block break-all rounded-lg bg-bg-elevated p-2 text-xs">
                 {issued.key}
               </code>
+              <button className="btn-outline mt-2 w-full justify-center" onClick={activateHere} disabled={activating}>
+                {activating ? <Spinner /> : <><Sparkles className="h-4 w-4" /> {t("admin.activateHere")}</>}
+              </button>
+              <p className="mt-1.5 text-xs text-text-muted">{t("admin.activateHereHint")}</p>
             </div>
           )}
 

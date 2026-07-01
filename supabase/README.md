@@ -122,24 +122,21 @@ The email you issue to **must match** the email they register with.
 Set `revoked = true` on the row in the `licenses` table (Table editor). The app
 re-checks on next launch / sync; expired or revoked keys fall back to Free.
 
-## Support inbox (owner-only, GitHub login)
+## Support inbox (owner-only, email + password)
 
 Visitors who are signed in can send a support message from `account.html`. Only
-**your** GitHub account can read them, enforced by RLS — nobody else can list the
-messages even with the public key.
+**your** admin account (by email) can read them, enforced by RLS — nobody else
+can list the messages even with the public key.
 
 1. **Create the table:** run [`support.sql`](support.sql) in the SQL editor. It
-   restricts read/update to the GitHub login `Bogroliakiraly` (change it there and
-   in `website/config.js` → `ADMIN_GITHUB_LOGIN` if your GitHub username differs).
-2. **Create a GitHub OAuth app:** GitHub → Settings → Developer settings →
-   OAuth Apps → New OAuth App.
-   - Homepage URL: `https://bogroliakiraly.github.io/boostforge/`
-   - **Authorization callback URL:** `https://unpaishxbfrtbkkxrcxq.supabase.co/auth/v1/callback`
-   - Copy the **Client ID** and generate a **Client secret**.
-3. **Enable GitHub in Supabase:** Authentication → Sign In / Providers → GitHub →
-   enable, paste the Client ID + secret, Save.
-4. Open **`support-admin.html`** on the site, click **Sign in with GitHub**. Only
-   your account sees the inbox; any other GitHub account is denied and signed out.
+   restricts read/update to the email `miujdonsagok@gmail.com` (change it there
+   and in `website/config.js` → `ADMIN_EMAIL` if you use a different address).
+2. **Create the admin account** (one-time, via the dashboard so it's confirmed
+   instantly — no email/rate-limit involved): **Authentication → Users → Add
+   user → Create new user**. Fill in the email and password, and check
+   **"Auto Confirm User"** before saving.
+3. Open **`support-admin.html`** on the site and sign in with that email +
+   password. Any other account is denied and signed out immediately.
 
 ## Free trial
 

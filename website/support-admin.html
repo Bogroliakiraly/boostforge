@@ -36,6 +36,15 @@
       .pill { font-size: 11px; border-radius: 999px; padding: 3px 9px; cursor: pointer; border: 1px solid var(--border); background: var(--elevated); color: var(--text-2); }
       .hidden { display: none !important; }
       .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+      label { display: block; font-size: 13px; color: var(--text-2); margin: 12px 0 5px; }
+      input {
+        width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 11px;
+        padding: 11px 13px; color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+      }
+      input:focus { border-color: var(--accent); }
+      .errmsg { margin-top: 14px; font-size: 13px; padding: 10px 12px; border-radius: 10px; display: none;
+        background: rgba(245,80,80,0.12); color: #ff9b9b; border: 1px solid rgba(245,80,80,0.3); }
+      .errmsg.show { display: block; }
     </style>
   </head>
   <body>
@@ -55,8 +64,13 @@
 
         <!-- Signed out -->
         <div id="loginView" class="card hidden">
-          <p class="muted" style="margin-bottom:14px">Owner access only. Sign in with the project's GitHub account.</p>
-          <button id="githubBtn" class="btn btn-primary">Sign in with GitHub</button>
+          <p class="muted" style="margin-bottom:14px">Owner access only.</p>
+          <label>Email</label>
+          <input id="adminEmail" type="email" autocomplete="username" />
+          <label>Password</label>
+          <input id="adminPassword" type="password" autocomplete="current-password" />
+          <button id="loginBtn" class="btn btn-primary" style="margin-top:16px">Sign in</button>
+          <div id="loginErr" class="errmsg"></div>
         </div>
 
         <!-- Not the owner -->
@@ -138,9 +152,27 @@
         renderList();
       }
 
-      $("githubBtn").addEventListener("click", () =>
-        window.bfAuth.signInWithGitHub(window.location.href).catch((e) => alert(e.message || e)),
-      );
+      $("loginBtn").addEventListener("click", async () => {
+        const email = $("adminEmail").value.trim();
+        const password = $("adminPassword").value;
+        $("loginErr").className = "errmsg";
+        if (!email || !password) {
+          $("loginErr").textContent = "Enter email and password.";
+          $("loginErr").className = "errmsg show";
+          return;
+        }
+        $("loginBtn").disabled = true;
+        try {
+          await window.bfAuth.signIn(email, password);
+          $("adminPassword").value = "";
+          await route();
+        } catch (e) {
+          $("loginErr").textContent = (e && e.message) || String(e);
+          $("loginErr").className = "errmsg show";
+        } finally {
+          $("loginBtn").disabled = false;
+        }
+      });
       $("signOutBtn").addEventListener("click", async () => {
         await window.bfAuth.signOut();
         location.reload();
